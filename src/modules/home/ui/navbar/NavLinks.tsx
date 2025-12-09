@@ -13,6 +13,7 @@ import z from "zod";
 import { LoginSchema } from "@/lib/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const navBarItems = [
   { href: "/films", children: "Films" },
@@ -99,7 +100,7 @@ const LoginComponent = ({
   });
   const { signIn, isLoaded } = useSignIn();
   const { setActive } = useClerk();
-
+  const router = useRouter();
   const handleSubmit = async (data: z.infer<typeof LoginSchema>) => {
     if (!isLoaded) return;
     try {
@@ -109,7 +110,7 @@ const LoginComponent = ({
       });
       if (result?.status == "complete") {
         await setActive({ session: result.createdSessionId });
-        window.location.reload();
+        router.refresh();
       }
     } catch (error) {
       toast.error("Failed to sign in: " + error);

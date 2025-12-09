@@ -36,6 +36,20 @@
       "when": 1765124905713,
       "tag": "0004_flawless_amazoness",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1765211235405,
+      "tag": "0005_fair_namorita",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1765273914768,
+      "tag": "0006_married_logan",
+      "breakpoints": true
     }
   ]
 }

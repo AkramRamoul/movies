@@ -32,3 +32,16 @@ export const WatchList = pgTable("watchlist", {
   userId: text("user_id").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+export const FavouriteMovies = pgTable("favourutemovies", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  movieId: text("movie_id").notNull(),
+});
+
+export const WatchedMovies = pgTable("watchedmovies", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  movieId: text("movie_id").notNull(),
+  watchedAt: timestamp("watched_at").defaultNow(),
+});

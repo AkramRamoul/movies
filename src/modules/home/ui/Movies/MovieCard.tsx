@@ -18,6 +18,12 @@ import {
   addToWatchList,
   RemoveFromWatchList,
   isInWatchList,
+  FavouriteMovie,
+  isFavouriteMovie,
+  RemoveFromFavouriteMovies,
+  isWatched,
+  unWatchMovie,
+  markMovieAsWatched,
 } from "@/actions/movies";
 import Modal from "@/components/modal";
 import LogMovie from "@/modules/Log/LogMovie";
@@ -34,7 +40,8 @@ const LetterboxdMovieCard: React.FC<MovieCardProps> = ({
   Id,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const { isSignedIn, user } = useUser();
+  const { isSignedIn, user, isLoaded } = useUser();
+  const userId = user?.id;
 
   const handleMouseEnter = () => {
     setIsHovered(true);
@@ -43,6 +50,48 @@ const LetterboxdMovieCard: React.FC<MovieCardProps> = ({
   const handleMouseLeave = () => {
     setIsHovered(false);
   };
+
+  const [liked, setLiked] = useState(false);
+  useEffect(() => {
+    const fetchState = async () => {
+      const exists = await isFavouriteMovie(Id, userId!);
+      setLiked(exists);
+    };
+    fetchState();
+  }, [Id, userId]);
+  const handleLike = async () => {
+    if (liked) {
+      setLiked(false);
+      await RemoveFromFavouriteMovies(Id, userId!);
+    } else {
+      setLiked(true);
+      await FavouriteMovie(Id, userId!);
+    }
+  };
+  const [watched, setWatched] = useState(false);
+
+  useEffect(() => {
+    const fetchisWatched = async () => {
+      const exists = await isWatched(Id, userId!);
+      setWatched(exists);
+    };
+    fetchisWatched();
+  }, [Id, userId]);
+
+  const handleWatchClick = async () => {
+    if (watched) {
+      setWatched(false);
+      await unWatchMovie(Id, user!.id!);
+    } else {
+      setWatched(true);
+      await markMovieAsWatched(Id, user!.id!);
+    }
+  };
+
+  if (!isLoaded) {
+    return <div className="hidden">Loading...</div>;
+  }
+
   return (
     <div
       className="bg-gray-900 rounded-sm overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 w-35 h-[220px] border hover:border-2 hover:border-amber-50 relative"
@@ -63,8 +112,18 @@ const LetterboxdMovieCard: React.FC<MovieCardProps> = ({
         opacity-0 ${isHovered ? "opacity-100 translate-y-0" : "translate-y-3"}
         transition-all duration-200`}
           >
-            <EyeIcon className="text-white w-5 h-5 hover:scale-110 transition-transform" />
-            <HeartIcon className="text-white w-5 h-5 hover:scale-110 transition-transform" />
+            <EyeIcon
+              className={`text-white w-5 h-5 hover:scale-110 transition-transform ${
+                watched ? "fill-green-600" : ""
+              }`}
+              onClick={handleWatchClick}
+            />
+            <HeartIcon
+              className={`w-5 h-5 hover:scale-110 transition-transform ${
+                liked ? "fill-red-500" : ""
+              }`}
+              onClick={handleLike}
+            />
             <Dropdown movieId={Id} userId={user.id} />
           </div>
         )}

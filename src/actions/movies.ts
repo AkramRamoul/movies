@@ -1,7 +1,12 @@
 "use server";
 
 import { db } from "@/db/drizzle";
-import { ReviewsTable, WatchList } from "@/db/schema";
+import {
+  ReviewsTable,
+  WatchList,
+  FavouriteMovies,
+  WatchedMovies,
+} from "@/db/schema";
 import { and, count, desc, eq } from "drizzle-orm";
 
 export const getPopularMovies = async () => {
@@ -86,6 +91,106 @@ export const createMovieReview = async (
       reviewText,
     });
     return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};
+
+export const FavouriteMovie = async (movieId: string, userId: string) => {
+  try {
+    await db.insert(FavouriteMovies).values({
+      userId,
+      movieId,
+    });
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};
+
+export const isFavouriteMovie = async (movieId: string, userId: string) => {
+  try {
+    const result = await db
+      .select()
+      .from(FavouriteMovies)
+      .where(
+        and(
+          eq(FavouriteMovies.movieId, movieId),
+          eq(FavouriteMovies.userId, userId)
+        )
+      )
+      .limit(1);
+    return result.length > 0;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};
+
+export const RemoveFromFavouriteMovies = async (
+  movieId: string,
+  userId: string
+) => {
+  try {
+    await db
+      .delete(FavouriteMovies)
+      .where(
+        and(
+          eq(FavouriteMovies.movieId, movieId),
+          eq(FavouriteMovies.userId, userId)
+        )
+      );
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};
+
+export const markMovieAsWatched = async (movieId: string, userId: string) => {
+  try {
+    await db.insert(WatchList).values({
+      userId,
+      movieId,
+    });
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};
+
+export const unWatchMovie = async (movieId: string, userId: string) => {
+  try {
+    await db
+      .delete(WatchedMovies)
+      .where(
+        and(
+          eq(WatchedMovies.movieId, movieId),
+          eq(WatchedMovies.userId, userId)
+        )
+      );
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};
+export const isWatched = async (movieId: string, userId: string) => {
+  try {
+    const result = await db
+      .select()
+      .from(WatchedMovies)
+      .where(
+        and(
+          eq(WatchedMovies.movieId, movieId),
+          eq(WatchedMovies.userId, userId)
+        )
+      )
+      .limit(1);
+    return result.length > 0;
   } catch (error) {
     console.error(error);
     return false;
