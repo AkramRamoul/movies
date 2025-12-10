@@ -27,17 +27,23 @@ import {
 } from "@/actions/movies";
 import Modal from "@/components/modal";
 import LogMovie from "@/modules/Log/LogMovie";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 interface MovieCardProps {
   title: string;
   poster: string;
   Id: string;
+  width?: string;
+  height?: string;
 }
 
 const LetterboxdMovieCard: React.FC<MovieCardProps> = ({
   title,
   poster,
   Id,
+  width,
+  height,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const { isSignedIn, user, isLoaded } = useUser();
@@ -91,44 +97,50 @@ const LetterboxdMovieCard: React.FC<MovieCardProps> = ({
   if (!isLoaded) {
     return <div className="hidden">Loading...</div>;
   }
-
   return (
-    <div
-      className="bg-gray-900 rounded-sm overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 w-35 h-[220px] border hover:border-2 hover:border-amber-50 relative"
+    <Link
+      href={`/film/${Id}`}
+      className={cn(
+        "rounded-sm overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border hover:border-2 hover:border-amber-50 shrink-0",
+        width ?? "w-35",
+        height ?? "h-[220px]"
+      )}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <Image src={poster} alt={title} fill className="object-cover" />
-      <div
-        className={`absolute inset-0 bg-black/70 opacity-0 ${
-          isHovered ? "opacity-100" : ""
-        } transition-opacity duration-200 flex items-end p-2`}
-      >
-        {isSignedIn && (
-          <div
-            className={`absolute bottom-0 left-0 right-0 px-2 py-1 
-        bg-black/75 backdrop-blur-sm 
-        flex items-center justify-around 
-        opacity-0 ${isHovered ? "opacity-100 translate-y-0" : "translate-y-3"}
-        transition-all duration-200`}
-          >
-            <EyeIcon
-              className={`text-white w-5 h-5 hover:scale-110 transition-transform ${
-                watched ? "fill-green-600" : ""
-              }`}
-              onClick={handleWatchClick}
-            />
-            <HeartIcon
-              className={`w-5 h-5 hover:scale-110 transition-transform ${
-                liked ? "fill-red-500" : ""
-              }`}
-              onClick={handleLike}
-            />
-            <Dropdown movieId={Id} userId={user.id} />
-          </div>
-        )}
+      <div className="relative w-full h-full">
+        <Image src={poster} alt={title} fill className="object-cover" />
+        <div
+          className={`absolute inset-0 bg-black/70 opacity-0 ${
+            isHovered ? "opacity-100" : ""
+          } transition-opacity duration-200 flex items-end p-2`}
+        >
+          {isSignedIn && (
+            <div
+              className={`absolute bottom-0 left-0 right-0 px-2 py-1 
+          bg-black/75 backdrop-blur-sm 
+          flex items-center justify-around 
+          opacity-0 ${isHovered ? "opacity-100 translate-y-0" : "translate-y-3"}
+          transition-all duration-200`}
+            >
+              <EyeIcon
+                className={`text-white w-5 h-5 hover:scale-110 transition-transform ${
+                  watched ? "fill-green-600" : ""
+                }`}
+                onClick={handleWatchClick}
+              />
+              <HeartIcon
+                className={`w-5 h-5 hover:scale-110 transition-transform ${
+                  liked ? "fill-red-500" : ""
+                }`}
+                onClick={handleLike}
+              />
+              <Dropdown movieId={Id} userId={user.id} />
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

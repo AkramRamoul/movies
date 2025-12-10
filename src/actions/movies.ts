@@ -151,7 +151,7 @@ export const RemoveFromFavouriteMovies = async (
 
 export const markMovieAsWatched = async (movieId: string, userId: string) => {
   try {
-    await db.insert(WatchList).values({
+    await db.insert(WatchedMovies).values({
       userId,
       movieId,
     });
@@ -196,3 +196,18 @@ export const isWatched = async (movieId: string, userId: string) => {
     return false;
   }
 };
+
+export async function isReviewed(movieId: string, userId: string) {
+  const review = await db
+    .select({
+      id: ReviewsTable.id,
+    })
+    .from(ReviewsTable)
+    .where(
+      and(eq(ReviewsTable.userId, userId), eq(ReviewsTable.movieId, movieId))
+    )
+    .limit(1);
+
+  // Return true if any row exists
+  return review.length > 0;
+}
