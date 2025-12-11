@@ -239,17 +239,9 @@ export const getMovieReviews = async (movieId: string) => {
 
   // 3. Compute percentages
   const total = ratings.length;
-  const percentages: Record<number, number> = {
-    1: total ? Math.round((counts[1] / total) * 100) : 0,
-    2: total ? Math.round((counts[2] / total) * 100) : 0,
-    3: total ? Math.round((counts[3] / total) * 100) : 0,
-    4: total ? Math.round((counts[4] / total) * 100) : 0,
-    5: total ? Math.round((counts[5] / total) * 100) : 0,
-  };
 
   return {
     counts,
-    percentages,
     total,
   };
 };
