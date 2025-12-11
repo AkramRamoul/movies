@@ -1,8 +1,11 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Tooltip, TooltipContent } from "@/components/ui/tooltip";
-import { TooltipTrigger } from "@radix-ui/react-tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Star } from "lucide-react";
 
 interface MovieReviewsResult {
@@ -46,7 +49,7 @@ export function RatingsChart({ counts, total }: MovieReviewsResult) {
                       style={{ height: `${height}%` }}
                     ></div>
                   </TooltipTrigger>
-                  <TooltipContent>
+                  <TooltipContent className="bg-[#445566] text-white">
                     <p>{count + ` Ratings (${percentage}%) `}</p>
                   </TooltipContent>
                 </Tooltip>
