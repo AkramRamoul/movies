@@ -211,3 +211,45 @@ export async function isReviewed(movieId: string, userId: string) {
   // Return true if any row exists
   return review.length > 0;
 }
+
+export const getMovieReviews = async (movieId: string) => {
+  const ratings = await db
+    .select({
+      rating: ReviewsTable.rating,
+    })
+    .from(ReviewsTable)
+    .where(eq(ReviewsTable.movieId, movieId));
+
+  // 1. Initialize counts
+  const counts: Record<number, number> = {
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0,
+  };
+
+  // 2. Count occurrences
+  ratings.forEach((r) => {
+    const value = Number(r.rating);
+    if (counts[value] !== undefined) {
+      counts[value]++;
+    }
+  });
+
+  // 3. Compute percentages
+  const total = ratings.length;
+  const percentages: Record<number, number> = {
+    1: total ? Math.round((counts[1] / total) * 100) : 0,
+    2: total ? Math.round((counts[2] / total) * 100) : 0,
+    3: total ? Math.round((counts[3] / total) * 100) : 0,
+    4: total ? Math.round((counts[4] / total) * 100) : 0,
+    5: total ? Math.round((counts[5] / total) * 100) : 0,
+  };
+
+  return {
+    counts,
+    percentages,
+    total,
+  };
+};

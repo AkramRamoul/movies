@@ -44,7 +44,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
                 className="
                   relative
                   w-full
-                  max-w-3xl     /* << BIGGER SIZE */
+                  max-w-4xl 
+                  h-120 /* << BIGGER SIZE */
                   transform
                   overflow-hidden
                   rounded-lg

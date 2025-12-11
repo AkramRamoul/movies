@@ -1,10 +1,11 @@
 "use server";
 
-import { isReviewed } from "@/actions/movies";
+import { getMovieReviews, isReviewed } from "@/actions/movies";
 import { RatingsChart } from "@/modules/film/ui/RatingsChart";
 import LetterboxdMovieCard from "@/modules/home/ui/Movies/MovieCard";
 import { currentUser } from "@clerk/nextjs/server";
 import ReviewCard from "@/modules/film/ui/ReviewCard";
+import { MovieTabs } from "@/modules/film/ui/MovieTabs";
 
 const Home = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
@@ -17,16 +18,17 @@ const Home = async ({ params }: { params: Promise<{ id: string }> }) => {
   const userId = user?.id;
 
   const reviewed = await isReviewed(id, userId!);
+  const distribution = await getMovieReviews(id);
 
   return (
-    <div className="max-w-7xl flex min-h-screen mx-auto px-6 md:px-40 gap-6 bg-noise pb-50">
+    <div className="max-w-7xl flex min-h-screen overflow-y-auto mx-auto px-6 md:px-40 gap-6 bg-noise pb-50">
       <div className="w-[25%] flex mt-3 sticky">
         <LetterboxdMovieCard
           Id={id}
           title={movie.Title}
           poster={movie.Poster}
           width="w-56"
-          height="h-[280px]"
+          height="h-[350px]"
         />
       </div>
       <div className="flex-1 gap-6 flex-col mt-6 h-screen">
@@ -34,46 +36,21 @@ const Home = async ({ params }: { params: Promise<{ id: string }> }) => {
         <p className="mt-4 text-base text-white/50">{movie.Plot}</p>
         <div className="flex flex-row gap-6">
           <div className="mt-12">
-            <div className="flex gap-4 border-b border-gray-600 text-gray-400">
-              {["CAST", "CREW", "DETAILS", "GENRES", "RELEASES"].map((tab) => (
-                <button
-                  key={tab}
-                  className="pb-2 border-b-2 border-transparent hover:text-white hover:border-white"
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-            {/* Content */}
-            <div className="mt-4 flex flex-wrap gap-2">
-              {[
-                movie.Director,
-                movie.Writer,
-                "Paul DeAngelo",
-                "Jonathan Tiersten",
-                "Felissa Rose",
-              ].map((name) => (
-                <span
-                  key={name}
-                  className="bg-gray-700 text-gray-200 px-3 py-1 rounded-md text-sm"
-                >
-                  {name}
-                </span>
-              ))}
-            </div>
+            <MovieTabs movie={movie} />
           </div>
           <div className="flex flex-col gap-2 mt-12">
             <ReviewCard userId={userId!} MovieId={id} reviewed={reviewed} />
-
-            {/* Ratings histogram */}
-            <div className="bg-gray-800 rounded-md p-6 w-80 h-60 overflow-hidden">
-              <div className="flex justify-between text-gray-400 mb-2">
+            <div className=" rounded-md p-6 w-80 h-60 overflow-hidden">
+              <div className="flex justify-between text-gray-400 mb-2 border-b-2 p-1">
                 <span>RATINGS</span>
-                <span>1.4K FANS</span>
+                <span>{distribution.total} FANS</span>
               </div>
 
               <div className="flex items-end gap-1 min-h-32">
-                <RatingsChart />
+                <RatingsChart
+                  counts={distribution.counts}
+                  total={distribution.total}
+                />
               </div>
             </div>
           </div>

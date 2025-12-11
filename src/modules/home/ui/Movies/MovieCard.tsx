@@ -87,10 +87,10 @@ const LetterboxdMovieCard: React.FC<MovieCardProps> = ({
   const handleWatchClick = async () => {
     if (watched) {
       setWatched(false);
-      await unWatchMovie(Id, user!.id!);
+      await unWatchMovie(Id, userId!);
     } else {
       setWatched(true);
-      await markMovieAsWatched(Id, user!.id!);
+      await markMovieAsWatched(Id, userId!);
     }
   };
 

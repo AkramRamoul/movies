@@ -62,7 +62,7 @@ const LogMovie = ({ movieId, userId, onSave }: LogMovieProps) => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex gap-12 p-12 rounded-md"
+        className="flex gap-12 rounded-md"
       >
         {/* LEFT SIDE — POSTER */}
         <div className="bg-gray-900 rounded-sm overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 w-50 h-[220px] border hover:border-2 hover:border-amber-50 relative">
