@@ -7,7 +7,8 @@ import {
   FavouriteMovies,
   WatchedMovies,
 } from "@/db/schema";
-import { and, count, desc, eq } from "drizzle-orm";
+import { UserFilmStats } from "@/types/types";
+import { and, count, desc, eq, gte } from "drizzle-orm";
 
 export const getPopularMovies = async () => {
   const result = await db
@@ -243,5 +244,58 @@ export const getMovieReviews = async (movieId: string) => {
   return {
     counts,
     total,
+  };
+};
+
+export const getUserFilmStats = async (
+  userId: string
+): Promise<UserFilmStats> => {
+  const startOfYear = new Date(new Date().getFullYear(), 0, 1);
+
+  const [watched, watchedThisYear, reviewed, liked] = await Promise.all([
+    // all watched
+    db
+      .select({ movieId: WatchedMovies.movieId })
+      .from(WatchedMovies)
+      .where(eq(WatchedMovies.userId, userId)),
+
+    // watched THIS YEAR
+    db
+      .select({ movieId: WatchedMovies.movieId })
+      .from(WatchedMovies)
+      .where(eq(WatchedMovies.userId, userId)),
+
+    // reviewed
+    db
+      .select({ movieId: WatchedMovies.movieId })
+      .from(WatchedMovies)
+      .where(
+        and(
+          eq(WatchedMovies.userId, userId),
+          gte(WatchedMovies.watchedAt, startOfYear)
+        )
+      ),
+
+    // liked
+    db
+      .select({ movieId: FavouriteMovies.movieId })
+      .from(FavouriteMovies)
+      .where(eq(FavouriteMovies.userId, userId)),
+  ]);
+
+  const watchedSet = new Set(watched.map((m) => m.movieId));
+  const reviewedSet = new Set(reviewed.map((m) => m.movieId));
+  const likedSet = new Set(liked.map((m) => m.movieId));
+  const thisYearSet = new Set(watchedThisYear.map((m) => m.movieId));
+
+  // total films = union of all categories
+  const totalFilmsSet = new Set([...watchedSet, ...reviewedSet, ...likedSet]);
+
+  return {
+    totalFilms: totalFilmsSet.size,
+    filmsThisYear: thisYearSet.size,
+    watchedCount: watchedSet.size,
+    reviewedCount: reviewedSet.size,
+    likedCount: likedSet.size,
   };
 };

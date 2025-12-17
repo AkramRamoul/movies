@@ -30,12 +30,13 @@ export function Dropdown({ username }: { username: string }) {
       <DropdownMenuContent className="w-56" align="start">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            Profile
-            <Link href={`/${username}`}>
+          <Link href={`/${username}`}>
+            <DropdownMenuItem>
+              Profile
               <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-            </Link>
-          </DropdownMenuItem>
+            </DropdownMenuItem>
+          </Link>
+
           <DropdownMenuItem>
             Billing
             <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
