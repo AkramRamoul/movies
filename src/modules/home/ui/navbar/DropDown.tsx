@@ -12,16 +12,12 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useClerk } from "@clerk/clerk-react";
+import Link from "next/link";
+import { signOut } from "next-auth/react";
 
 export function Dropdown({ username }: { username: string }) {
-  const { signOut, session } = useClerk();
-
   const onClickSignOut = async () => {
-    if (!session) return;
-    await signOut(() => {
-      window.location.href = window.location.origin;
-    });
+    signOut();
   };
 
   return (
@@ -36,7 +32,9 @@ export function Dropdown({ username }: { username: string }) {
         <DropdownMenuGroup>
           <DropdownMenuItem>
             Profile
-            <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+            <Link href={`/${username}`}>
+              <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
             Billing

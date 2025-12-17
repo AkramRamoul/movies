@@ -3,8 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Nav } from "@/modules/home/ui/navbar/Nav";
 
-import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
+import AuthContext from "./context/AuthContext";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -26,16 +26,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en" className="dark">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
+    <html lang="en" className="dark">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <AuthContext>
           <Nav />
           {children}
           <Toaster />
-        </body>
-      </html>
-    </ClerkProvider>
+        </AuthContext>
+      </body>
+    </html>
   );
 }

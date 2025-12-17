@@ -2,10 +2,10 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import SearchBox from "./SearchBox";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
+import { signIn, useSession } from "next-auth/react";
 import { CreateAccountButton } from "../SignUp/Singup";
-import { useClerk, useSignIn, useUser } from "@clerk/nextjs";
 import { Dropdown } from "./DropDown";
 import { FieldLabel } from "@/components/ui/field";
 import { useForm } from "react-hook-form";
@@ -36,12 +36,12 @@ export const NavItem = ({ children, href }: NavItemProps) => {
 
 const NavLinks = () => {
   const [signInToggle, setSignInToggle] = useState(false);
-  const { user, isLoaded } = useUser();
+  const { data: session, status } = useSession();
 
-  if (isLoaded && user) {
+  if (status === "authenticated") {
     return (
       <div className="flex items-center gap-4">
-        <Dropdown username={user.username!} />
+        <Dropdown username={session.user.username} />
         {navBarItems.map((item) => (
           <NavItem key={item.href} href={item.href}>
             {item.children}
@@ -98,23 +98,30 @@ const LoginComponent = ({
     },
     resolver: zodResolver(LoginSchema),
   });
-  const { signIn, isLoaded } = useSignIn();
-  const { setActive } = useClerk();
   const router = useRouter();
-  const handleSubmit = async (data: z.infer<typeof LoginSchema>) => {
-    if (!isLoaded) return;
-    try {
-      const result = await signIn?.create({
-        identifier: data.username,
-        password: data.password,
-      });
-      if (result?.status == "complete") {
-        await setActive({ session: result.createdSessionId });
-        router.refresh();
-      }
-    } catch (error) {
-      toast.error("Failed to sign in: " + error);
+
+  const session = useSession();
+
+  useEffect(() => {
+    if (session?.status === "authenticated") {
+      router.push("/users");
     }
+  }, [session?.status, router]);
+
+  const handleSubmit = async (data: z.infer<typeof LoginSchema>) => {
+    signIn("credentials", {
+      username: data.username,
+      password: data.password,
+      redirect: false,
+    }).then((callback) => {
+      if (callback?.error) {
+        return toast.error("Invalid credentials");
+      }
+      if (callback?.ok && !callback.error) {
+        toast.success("Logged in");
+        router.push("/users");
+      }
+    });
   };
   return (
     <div className="flex items-center gap-3 text-sm px-4 py-3 bg-transparent">

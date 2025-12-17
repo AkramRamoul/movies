@@ -1,0 +1,1 @@
+ALTER TABLE "list" ADD COLUMN "isPrivate" boolean DEFAULT false;
