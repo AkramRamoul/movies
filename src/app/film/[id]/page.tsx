@@ -3,9 +3,9 @@
 import { getMovieReviews, isReviewed } from "@/actions/movies";
 import { RatingsChart } from "@/modules/film/ui/RatingsChart";
 import LetterboxdMovieCard from "@/modules/home/ui/Movies/MovieCard";
-import { currentUser } from "@clerk/nextjs/server";
 import ReviewCard from "@/modules/film/ui/ReviewCard";
 import { MovieTabs } from "@/modules/film/ui/MovieTabs";
+import { getCurrentUser } from "@/actions/user";
 
 const Home = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
@@ -14,8 +14,8 @@ const Home = async ({ params }: { params: Promise<{ id: string }> }) => {
     `https://www.omdbapi.com/?apikey=${process.env.MOVIE_API_KEY}&i=${id}`
   ).then((r) => r.json());
 
-  const user = await currentUser();
-  const userId = user?.id;
+  const currentUser = await getCurrentUser();
+  const userId = currentUser?.id;
 
   const reviewed = await isReviewed(id, userId!);
   const distribution = await getMovieReviews(id);

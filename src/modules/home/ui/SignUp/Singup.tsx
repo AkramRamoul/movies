@@ -7,6 +7,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import axios from "axios";
+
 import {
   Field,
   FieldError,
@@ -19,8 +21,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
 import { SignUpSchema } from "@/lib/schema";
 import { toast } from "sonner";
-import { useSignUp } from "@clerk/nextjs";
-import { useClerk } from "@clerk/nextjs";
+import { signIn } from "next-auth/react";
 
 export function CreateAccountButton() {
   const form = useForm<z.infer<typeof SignUpSchema>>({
@@ -31,24 +32,13 @@ export function CreateAccountButton() {
     },
     resolver: zodResolver(SignUpSchema),
   });
-  const { signUp, isLoaded } = useSignUp();
-  const { setActive } = useClerk();
 
   async function onSubmit(data: z.infer<typeof SignUpSchema>) {
-    if (!isLoaded) return;
-
     try {
-      const result = await signUp.create({
-        emailAddress: data.email,
-        username: data.username,
-        password: data.password,
-      });
-
-      if (result.status === "complete") {
-        await setActive({ session: result.createdSessionId });
-        toast.success("Account created and logged in successfully!");
-        window.location.reload();
-      }
+      axios
+        .post("/api/register", data)
+        .then(() => signIn("credentials", data))
+        .catch(() => toast.error("Something went wrong"));
     } catch (error) {
       toast.error("Failed to create user: " + error);
     }

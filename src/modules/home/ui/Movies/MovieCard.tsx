@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useUser } from "@clerk/nextjs";
 
 import {
   DropdownMenu,
@@ -29,6 +28,7 @@ import Modal from "@/components/modal";
 import LogMovie from "@/modules/Log/LogMovie";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useSession } from "next-auth/react";
 
 interface MovieCardProps {
   title: string;
@@ -46,8 +46,9 @@ const LetterboxdMovieCard: React.FC<MovieCardProps> = ({
   height,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const { isSignedIn, user, isLoaded } = useUser();
-  const userId = user?.id;
+  const { data: session, status } = useSession();
+
+  const userId = session?.user?.id;
 
   const handleMouseEnter = () => {
     setIsHovered(true);
@@ -94,9 +95,6 @@ const LetterboxdMovieCard: React.FC<MovieCardProps> = ({
     }
   };
 
-  if (!isLoaded) {
-    return <div className="hidden">Loading...</div>;
-  }
   return (
     <Link
       href={`/film/${Id}`}
@@ -115,7 +113,7 @@ const LetterboxdMovieCard: React.FC<MovieCardProps> = ({
             isHovered ? "opacity-100" : ""
           } transition-opacity duration-200 flex items-end p-2`}
         >
-          {isSignedIn && (
+          {status === "authenticated" && (
             <div
               className={`absolute bottom-0 left-0 right-0 px-2 py-1 
           bg-black/75 backdrop-blur-sm 
@@ -127,15 +125,25 @@ const LetterboxdMovieCard: React.FC<MovieCardProps> = ({
                 className={`text-white w-5 h-5 hover:scale-110 transition-transform ${
                   watched ? "fill-green-600" : ""
                 }`}
-                onClick={handleWatchClick}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleWatchClick();
+                }}
               />
+
               <HeartIcon
                 className={`w-5 h-5 hover:scale-110 transition-transform ${
                   liked ? "fill-red-500" : ""
                 }`}
-                onClick={handleLike}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleLike();
+                }}
               />
-              <Dropdown movieId={Id} userId={user.id} />
+
+              <Dropdown movieId={Id} userId={session.user.id} />
             </div>
           )}
         </div>
@@ -202,12 +210,16 @@ const Dropdown = ({ movieId, userId }: { movieId: string; userId: string }) => {
             variant="ghost"
             aria-label="More Options"
             className="text-white w-5 h-5 hover:scale-110 transition-transform
-            bg-transparent hover:bg-transparent bg-none border-none
-            "
+      bg-transparent hover:bg-transparent border-none"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
           >
             <MoreHorizontalIcon />
           </Button>
         </DropdownMenuTrigger>
+
         <DropdownMenuContent
           align="end"
           className="w-52"
@@ -215,14 +227,22 @@ const Dropdown = ({ movieId, userId }: { movieId: string; userId: string }) => {
         >
           <DropdownMenuGroup>
             <DropdownMenuItem
-              onClick={toggleWatchList}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleWatchList();
+              }}
               className="flex justify-center"
             >
               {inWatchList ? "Remove from watchlist" : "Add to watchlist"}
             </DropdownMenuItem>
             <DropdownMenuItem
               className="flex justify-center"
-              onClick={() => setIsOpenModal(true)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsOpenModal(true);
+              }}
             >
               Review or Log
             </DropdownMenuItem>
