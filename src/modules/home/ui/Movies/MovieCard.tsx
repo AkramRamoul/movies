@@ -143,7 +143,7 @@ const LetterboxdMovieCard: React.FC<MovieCardProps> = ({
                 }}
               />
 
-              <Dropdown movieId={Id} userId={session.user.id} />
+              <Dropdown movieId={Id} userId={session.user.id} poster={poster} />
             </div>
           )}
         </div>
@@ -154,7 +154,15 @@ const LetterboxdMovieCard: React.FC<MovieCardProps> = ({
 
 export default LetterboxdMovieCard;
 
-const Dropdown = ({ movieId, userId }: { movieId: string; userId: string }) => {
+const Dropdown = ({
+  movieId,
+  userId,
+  poster,
+}: {
+  movieId: string;
+  userId: string;
+  poster?: string;
+}) => {
   const [inWatchList, setInWatchList] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -167,7 +175,7 @@ const Dropdown = ({ movieId, userId }: { movieId: string; userId: string }) => {
   const [loading, setLoading] = useState(false);
 
   const toggleWatchList = async () => {
-    if (loading || inWatchList === null) return; // prevent double clicks
+    if (loading || inWatchList === null) return;
     setLoading(true);
 
     setInWatchList(!inWatchList);
@@ -200,6 +208,7 @@ const Dropdown = ({ movieId, userId }: { movieId: string; userId: string }) => {
           <LogMovie
             movieId={movieId}
             userId={userId}
+            poster={poster}
             onSave={() => setIsOpenModal(false)}
           />
         </Modal>

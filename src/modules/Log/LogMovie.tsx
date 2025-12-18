@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { createMovieReview } from "@/actions/movies";
 import { toast } from "sonner";
+import LikeMovie from "../home/ui/Movies/LikeMovie";
 
 const formSchema = z.object({
   watched: z.boolean().optional(),
@@ -30,10 +31,11 @@ const formSchema = z.object({
 interface LogMovieProps {
   movieId: string;
   userId: string;
+  poster?: string;
   onSave: () => void;
 }
 
-const LogMovie = ({ movieId, userId, onSave }: LogMovieProps) => {
+const LogMovie = ({ movieId, userId, poster, onSave }: LogMovieProps) => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -66,7 +68,12 @@ const LogMovie = ({ movieId, userId, onSave }: LogMovieProps) => {
       >
         {/* LEFT SIDE — POSTER */}
         <div className="bg-gray-900 rounded-sm overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 w-50 h-[220px] border hover:border-2 hover:border-amber-50 relative">
-          <Image fill alt="image" src="/logo.jpeg" className="object-cover" />
+          <Image
+            fill
+            alt="image"
+            src={poster ? poster : "/logo.png"}
+            className="object-cover"
+          />
         </div>
 
         {/* RIGHT SIDE — FORM */}
@@ -118,15 +125,18 @@ const LogMovie = ({ movieId, userId, onSave }: LogMovieProps) => {
             control={form.control}
             name="rating"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Rating</FormLabel>
-                <FormControl>
-                  <StarPicker
-                    value={field.value}
-                    onChange={(val: number) => field.onChange(val)}
-                  />
-                </FormControl>
-              </FormItem>
+              <div className="flex flex-row justify-between items-center">
+                <FormItem>
+                  <FormLabel>Rating</FormLabel>
+                  <FormControl>
+                    <StarPicker
+                      value={field.value}
+                      onChange={(val: number) => field.onChange(val)}
+                    />
+                  </FormControl>
+                </FormItem>
+                <LikeMovie movieId={movieId} userId={userId} size="8" />
+              </div>
             )}
           />
           <div className="flex justify-end">

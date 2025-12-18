@@ -28,7 +28,6 @@ const Home = async ({ params }: { params: Promise<{ username: string }> }) => {
     <div className="max-w-7xl h-screen mx-auto px-auto px-6 md:px-30 bg-noise">
       <div className="relative">
         <div className="relative max-w-7xl mx-auto px-6 py-8 flex items-center justify-between">
-          {/* LEFT SIDE */}
           <div className="flex items-center gap-6">
             <Avatar className="h-24 w-24 border border-white/20">
               <AvatarImage src={profileUser.image || "/Avatar.png"} />
@@ -36,12 +35,10 @@ const Home = async ({ params }: { params: Promise<{ username: string }> }) => {
                 {profileUser.username.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-
             <div className="flex flex-row gap-2">
               <h1 className="text-xl font-semibold text-white tracking-wide">
                 {profileUser.username}
               </h1>
-
               {isOwner && (
                 <div className="flex items-center gap-3">
                   <button className="px-4 py-1.5 text-xs font-medium rounded bg-[#445566] text-[#c8d4e0] hover:bg-[#556677] transition hover">
