@@ -142,3 +142,11 @@ export const authenticators = pgTable(
     },
   ]
 );
+
+export const diaryEntries = pgTable("diaryEntries", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  movieId: text("movie_id").notNull(),
+  date: timestamp("date").notNull(),
+  rewatch: boolean("rewatch").default(false),
+});

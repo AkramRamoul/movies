@@ -6,6 +6,7 @@ import {
   WatchList,
   FavouriteMovies,
   WatchedMovies,
+  diaryEntries,
 } from "@/db/schema";
 import { UserFilmStats } from "@/types/types";
 import { and, count, desc, eq, gte } from "drizzle-orm";
@@ -298,4 +299,18 @@ export const getUserFilmStats = async (
     reviewedCount: reviewedSet.size,
     likedCount: likedSet.size,
   };
+};
+
+export const AddDiaryEntry = async (
+  movieId: string,
+  userId: string,
+  date: Date | undefined,
+  rewatch: boolean
+) => {
+  await db.insert(diaryEntries).values({
+    userId,
+    movieId,
+    date: date!,
+    rewatch,
+  });
 };

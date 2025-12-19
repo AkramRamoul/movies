@@ -19,9 +19,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { StarPicker } from "@/components/star-rating";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { createMovieReview } from "@/actions/movies";
+import { AddDiaryEntry, createMovieReview } from "@/actions/movies";
 import { toast } from "sonner";
 import LikeMovie from "../home/ui/Movies/LikeMovie";
+import { useState } from "react";
+import { DatePicker } from "./DatePicker";
 
 const formSchema = z.object({
   watched: z.boolean().optional(),
@@ -45,6 +47,9 @@ const LogMovie = ({ movieId, userId, poster, onSave }: LogMovieProps) => {
     },
   });
 
+  const [addToDiary, setAddtoDiary] = useState(false);
+  const [watchedDate, setWatchedDate] = useState<Date | undefined>(new Date());
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const result = await createMovieReview(
       movieId,
@@ -52,12 +57,18 @@ const LogMovie = ({ movieId, userId, poster, onSave }: LogMovieProps) => {
       values.rating ?? 0,
       values.review ?? ""
     );
-    if (result) {
-      onSave();
-      toast.success("Movie added to your films");
-    } else {
+
+    if (!result) {
       console.log("Failed to create review");
+      return;
     }
+
+    if (values.watched && addToDiary) {
+      await AddDiaryEntry(movieId, userId, watchedDate, false);
+    }
+
+    onSave();
+    toast.success("Movie added to your films");
   };
 
   return (
@@ -76,26 +87,45 @@ const LogMovie = ({ movieId, userId, poster, onSave }: LogMovieProps) => {
           />
         </div>
 
-        {/* RIGHT SIDE — FORM */}
         <div className="flex flex-col justify-start w-full gap-6">
           <h2 className="text-2xl font-semibold">Animusic 2</h2>
 
-          {/* Watched Checkbox */}
-          <FormField
-            control={form.control}
-            name="watched"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center gap-2 space-y-0">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <FormLabel>Watched on 07 Dec 2025</FormLabel>
-              </FormItem>
-            )}
-          />
+          {!addToDiary && (
+            <div className="flex flex-row items-center gap-2">
+              <Checkbox
+                checked={addToDiary}
+                onCheckedChange={(checked) => setAddtoDiary(!!checked)}
+              />
+              <span>Add to Diary</span>
+            </div>
+          )}
+          {addToDiary && (
+            <FormField
+              control={form.control}
+              name="watched"
+              render={({}) => (
+                <FormItem className="flex flex-row items-center gap-2 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={addToDiary}
+                      onCheckedChange={(checked) => {
+                        const value = !!checked;
+                        setAddtoDiary(value);
+
+                        if (value) {
+                          form.setValue("watched", true);
+                        }
+                      }}
+                    />
+                  </FormControl>
+                  <FormLabel>
+                    Watched on{" "}
+                    <DatePicker value={watchedDate} onChange={setWatchedDate} />
+                  </FormLabel>
+                </FormItem>
+              )}
+            />
+          )}
 
           {/* Review Textarea */}
           <FormField
