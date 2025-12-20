@@ -19,11 +19,16 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { StarPicker } from "@/components/star-rating";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { AddDiaryEntry, createMovieReview } from "@/actions/movies";
+import {
+  AddDiaryEntry,
+  createMovieReview,
+  updateMovieReview,
+} from "@/actions/movies";
 import { toast } from "sonner";
 import LikeMovie from "../home/ui/Movies/LikeMovie";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DatePicker } from "./DatePicker";
+import { FieldGroup } from "@/components/ui/field";
 
 const formSchema = z.object({
   watched: z.boolean().optional(),
@@ -35,41 +40,82 @@ interface LogMovieProps {
   userId: string;
   poster?: string;
   onSave: () => void;
+  title: string;
+  initialData?: {
+    review?: string;
+    rating?: number;
+    watched?: boolean;
+    watchedDate?: Date;
+    reWatched?: boolean;
+  };
 }
 
-const LogMovie = ({ movieId, userId, poster, onSave }: LogMovieProps) => {
+const LogMovie = ({
+  movieId,
+  userId,
+  poster,
+  onSave,
+  title,
+  initialData,
+}: LogMovieProps) => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      watched: true,
-      review: "",
-      rating: 0,
+      watched: initialData?.watched ?? true,
+      review: initialData?.review ?? "",
+      rating: initialData?.rating ?? 0,
     },
   });
 
-  const [addToDiary, setAddtoDiary] = useState(false);
-  const [watchedDate, setWatchedDate] = useState<Date | undefined>(new Date());
+  const isEditMode = !!initialData;
+
+  const [addToDiary, setAddtoDiary] = useState(initialData?.watched ?? true);
+  const [watchedDate, setWatchedDate] = useState<Date | undefined>(
+    initialData?.watchedDate ?? new Date()
+  );
+
+  const [reWatched, setReWatched] = useState(initialData?.reWatched ?? false);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const result = await createMovieReview(
-      movieId,
-      userId,
-      values.rating ?? 0,
-      values.review ?? ""
-    );
+    if (isEditMode) {
+      await updateMovieReview(
+        movieId,
+        userId,
+        values.rating ?? 0,
+        values.review ?? ""
+      );
 
-    if (!result) {
-      console.log("Failed to create review");
-      return;
-    }
+      if (values.watched && addToDiary) {
+        await AddDiaryEntry(movieId, userId, watchedDate, reWatched);
+      }
 
-    if (values.watched && addToDiary) {
-      await AddDiaryEntry(movieId, userId, watchedDate, false);
+      toast.success("Movie updated");
+    } else {
+      await createMovieReview(
+        movieId,
+        userId,
+        values.rating ?? 0,
+        values.review ?? ""
+      );
+
+      if (values.watched && addToDiary) {
+        await AddDiaryEntry(movieId, userId, watchedDate, reWatched);
+      }
+
+      toast.success("Movie added to your films");
     }
 
     onSave();
-    toast.success("Movie added to your films");
   };
+
+  useEffect(() => {
+    if (!initialData) return;
+    form.reset({
+      watched: initialData.watched ?? true,
+      review: initialData.review ?? "",
+      rating: initialData.rating ?? 0,
+    });
+  }, [initialData, form]);
 
   return (
     <Form {...form}>
@@ -87,9 +133,8 @@ const LogMovie = ({ movieId, userId, poster, onSave }: LogMovieProps) => {
           />
         </div>
 
-        <div className="flex flex-col justify-start w-full gap-6">
-          <h2 className="text-2xl font-semibold">Animusic 2</h2>
-
+        <div className="flex flex-col justify-start w-full gap-4">
+          <h2 className="text-2xl font-semibold">{title}</h2>
           {!addToDiary && (
             <div className="flex flex-row items-center gap-2">
               <Checkbox
@@ -104,25 +149,39 @@ const LogMovie = ({ movieId, userId, poster, onSave }: LogMovieProps) => {
               control={form.control}
               name="watched"
               render={({}) => (
-                <FormItem className="flex flex-row items-center gap-2 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={addToDiary}
-                      onCheckedChange={(checked) => {
-                        const value = !!checked;
-                        setAddtoDiary(value);
+                <FieldGroup className="flex flex-row">
+                  <FormItem className="flex flex-row items-center gap-2 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        className="w-5 h-5"
+                        checked={addToDiary}
+                        onCheckedChange={(checked) => {
+                          const value = !!checked;
+                          setAddtoDiary(value);
 
-                        if (value) {
-                          form.setValue("watched", true);
-                        }
-                      }}
+                          if (value) {
+                            form.setValue("watched", true);
+                          }
+                        }}
+                      />
+                    </FormControl>
+                    <FormLabel>
+                      Watched on{" "}
+                      <DatePicker
+                        value={watchedDate}
+                        onChange={setWatchedDate}
+                      />
+                    </FormLabel>
+                  </FormItem>
+                  <FormItem className="flex flex-row items-center gap-2 space-y-0">
+                    <Checkbox
+                      className="w-5 h-5"
+                      checked={reWatched}
+                      onCheckedChange={(checked) => setReWatched(!!checked)}
                     />
-                  </FormControl>
-                  <FormLabel>
-                    Watched on{" "}
-                    <DatePicker value={watchedDate} onChange={setWatchedDate} />
-                  </FormLabel>
-                </FormItem>
+                    <FormLabel>I&apos;ve watched this before</FormLabel>
+                  </FormItem>
+                </FieldGroup>
               )}
             />
           )}
@@ -140,7 +199,7 @@ const LogMovie = ({ movieId, userId, poster, onSave }: LogMovieProps) => {
                     className={cn(
                       "bg-[#ccdded] border-gray-700 text-black placeholder-[#899aab]",
                       "h-32 resize-none p-3 focus:bg-white!",
-                      "border border-gray-700! bg-[#ccdded]! text-black"! // <-- KEY FIX
+                      "border border-gray-700! bg-[#ccdded]! text-black rounded-sm"!
                     )}
                     placeholder="Add a review..."
                   />
@@ -169,7 +228,7 @@ const LogMovie = ({ movieId, userId, poster, onSave }: LogMovieProps) => {
               </div>
             )}
           />
-          <div className="flex justify-end">
+          <div className="flex justify-end mt-2 pr-3">
             <Button
               type="submit"
               className="bg-[#00b020] hover:bg-[#00a01c] text-white h-8 px-5 py-1 font-bold rounded-sm"

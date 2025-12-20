@@ -314,3 +314,61 @@ export const AddDiaryEntry = async (
     rewatch,
   });
 };
+
+export const alreadyReviewed = async (movieId: string, userId: string) => {
+  const review = await db
+    .select()
+    .from(ReviewsTable)
+    .where(
+      and(eq(ReviewsTable.userId, userId), eq(ReviewsTable.movieId, movieId))
+    )
+    .limit(1);
+  if (review.length > 0) {
+    return true;
+  }
+  return false;
+};
+
+export const updateMovieReview = async (
+  movieId: string,
+  userId: string,
+  rating: number,
+  reviewText: string
+) => {
+  try {
+    await db
+      .update(ReviewsTable)
+      .set({
+        rating,
+        reviewText,
+      })
+      .where(
+        and(eq(ReviewsTable.userId, userId), eq(ReviewsTable.movieId, movieId))
+      );
+  } catch (error) {
+    console.error("Error updating review:", error);
+    throw error;
+  }
+};
+
+export async function getUserMovieReview(movieId: string, userId: string) {
+  const result = await db
+    .select({
+      rating: ReviewsTable.rating,
+      review: ReviewsTable.reviewText,
+    })
+    .from(ReviewsTable)
+    .leftJoin(
+      diaryEntries,
+      and(
+        eq(diaryEntries.movieId, ReviewsTable.movieId),
+        eq(diaryEntries.userId, ReviewsTable.userId)
+      )
+    )
+    .where(
+      and(eq(ReviewsTable.movieId, movieId), eq(ReviewsTable.userId, userId))
+    )
+    .limit(1);
+
+  return result[0] ?? null;
+}

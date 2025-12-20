@@ -1,22 +1,11 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { EyeIcon, HeartIcon, MoreHorizontalIcon } from "lucide-react";
+import { EyeIcon, HeartIcon } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import {
-  addToWatchList,
-  RemoveFromWatchList,
-  isInWatchList,
+ 
   FavouriteMovie,
   isFavouriteMovie,
   RemoveFromFavouriteMovies,
@@ -24,11 +13,10 @@ import {
   unWatchMovie,
   markMovieAsWatched,
 } from "@/actions/movies";
-import Modal from "@/components/modal";
-import LogMovie from "@/modules/Log/LogMovie";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
+import { Dropdown } from "@/components/MovieDropDown";
 
 interface MovieCardProps {
   title: string;
@@ -143,7 +131,12 @@ const LetterboxdMovieCard: React.FC<MovieCardProps> = ({
                 }}
               />
 
-              <Dropdown movieId={Id} userId={session.user.id} poster={poster} />
+              <Dropdown
+                movieId={Id}
+                userId={session.user.id}
+                poster={poster}
+                title={title}
+              />
             </div>
           )}
         </div>
@@ -154,119 +147,4 @@ const LetterboxdMovieCard: React.FC<MovieCardProps> = ({
 
 export default LetterboxdMovieCard;
 
-const Dropdown = ({
-  movieId,
-  userId,
-  poster,
-}: {
-  movieId: string;
-  userId: string;
-  poster?: string;
-}) => {
-  const [inWatchList, setInWatchList] = useState<boolean | null>(null);
 
-  useEffect(() => {
-    const fetchState = async () => {
-      const exists = await isInWatchList(movieId, userId);
-      setInWatchList(exists);
-    };
-    fetchState();
-  }, [movieId, userId]);
-  const [loading, setLoading] = useState(false);
-
-  const toggleWatchList = async () => {
-    if (loading || inWatchList === null) return;
-    setLoading(true);
-
-    setInWatchList(!inWatchList);
-
-    try {
-      if (inWatchList) {
-        await RemoveFromWatchList(movieId, userId);
-      } else {
-        await addToWatchList(movieId, userId);
-      }
-    } catch (err) {
-      setInWatchList(inWatchList);
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-  const [open, setOpen] = useState(false);
-  const [modalisOpen, setIsOpenModal] = useState(false);
-
-  return (
-    <div>
-      {modalisOpen && (
-        <Modal
-          isOpen={modalisOpen}
-          onClose={() => {
-            setIsOpenModal(false);
-          }}
-        >
-          <LogMovie
-            movieId={movieId}
-            userId={userId}
-            poster={poster}
-            onSave={() => setIsOpenModal(false)}
-          />
-        </Modal>
-      )}
-      <DropdownMenu open={open} onOpenChange={setOpen}>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            aria-label="More Options"
-            className="text-white w-5 h-5 hover:scale-110 transition-transform
-      bg-transparent hover:bg-transparent border-none"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-          >
-            <MoreHorizontalIcon />
-          </Button>
-        </DropdownMenuTrigger>
-
-        <DropdownMenuContent
-          align="end"
-          className="w-52"
-          onMouseLeave={() => setOpen(false)}
-        >
-          <DropdownMenuGroup>
-            <DropdownMenuItem
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                toggleWatchList();
-              }}
-              className="flex justify-center"
-            >
-              {inWatchList ? "Remove from watchlist" : "Add to watchlist"}
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="flex justify-center"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setIsOpenModal(true);
-              }}
-            >
-              Review or Log
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            <DropdownMenuItem className="flex justify-center">
-              Show in lists
-            </DropdownMenuItem>
-            <DropdownMenuItem className="flex justify-center">
-              Add to lists
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-  );
-};
