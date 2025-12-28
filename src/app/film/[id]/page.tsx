@@ -22,14 +22,14 @@ const Home = async ({ params }: { params: Promise<{ id: string }> }) => {
 
   return (
     <div className="max-w-7xl flex min-h-screen overflow-y-auto mx-auto px-6 md:px-40 gap-6 bg-noise pb-50">
-      <div className="w-[25%] flex mt-3 sticky">
-        <LetterboxdMovieCard
-          Id={id}
-          title={movie.Title}
-          poster={movie.Poster}
-          width="w-56"
-          height="h-[350px]"
-        />
+      <div className="w-[25%] flex mt-3 sticky top-0">
+        <div className="w-56 h-[350px]">
+          <LetterboxdMovieCard
+            Id={id}
+            title={movie.Title}
+            poster={movie.Poster}
+          />
+        </div>
       </div>
       <div className="flex-1 gap-6 flex-col mt-6 h-screen">
         <h1 className="text-4xl font-bold">{movie.Title}</h1>

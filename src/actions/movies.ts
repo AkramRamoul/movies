@@ -45,6 +45,12 @@ export const addToWatchList = async (movieId: string, userId: string) => {
       movieId,
     });
 
+    await logActivity({
+      userId,
+      movieId,
+      activityType: "watchlist_add",
+    });
+
     return true;
   } catch (error) {
     console.error(error);
@@ -83,7 +89,8 @@ export const createMovieReview = async (
   movieId: string,
   userId: string,
   rating: number,
-  reviewText: string
+  reviewText: string,
+  rewatch?: boolean
 ) => {
   try {
     await db.insert(ReviewsTable).values({
@@ -92,6 +99,13 @@ export const createMovieReview = async (
       userId,
       reviewText,
     });
+
+    await logActivity({
+      userId,
+      movieId,
+      activityType: rewatch ? "rewatched" : "reviewed",
+    });
+
     return true;
   } catch (error) {
     console.error(error);
@@ -105,6 +119,13 @@ export const FavouriteMovie = async (movieId: string, userId: string) => {
       userId,
       movieId,
     });
+
+    await logActivity({
+      userId,
+      movieId,
+      activityType: "liked",
+    });
+
     return true;
   } catch (error) {
     console.error(error);
@@ -157,6 +178,13 @@ export const markMovieAsWatched = async (movieId: string, userId: string) => {
       userId,
       movieId,
     });
+
+    await logActivity({
+      userId,
+      movieId,
+      activityType: "watched",
+    });
+
     return true;
   } catch (error) {
     console.error(error);
@@ -371,4 +399,44 @@ export async function getUserMovieReview(movieId: string, userId: string) {
     .limit(1);
 
   return result[0] ?? null;
+}
+
+export async function getFavMoviesByUser(userId: string) {
+  const result = await db
+    .select({
+      movieId: FavouriteMovies.movieId,
+    })
+    .from(FavouriteMovies)
+    .where(eq(FavouriteMovies.userId, userId))
+    .limit(4);
+
+  return result;
+}
+export async function getAllFavMoviesByUser(userId: string) {
+  const result = await db
+    .select({
+      movieId: FavouriteMovies.movieId,
+    })
+    .from(FavouriteMovies)
+    .where(eq(FavouriteMovies.userId, userId));
+
+  return result;
+}
+
+import { ActivityLog } from "@/db/schema";
+
+async function logActivity({
+  userId,
+  activityType,
+  movieId,
+}: {
+  userId: string;
+  activityType: string;
+  movieId?: string;
+}) {
+  await db.insert(ActivityLog).values({
+    userId,
+    activityType,
+    movieId,
+  });
 }

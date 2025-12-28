@@ -1,11 +1,9 @@
 "use client";
 
-
 import { EyeIcon, HeartIcon } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import {
- 
   FavouriteMovie,
   isFavouriteMovie,
   RemoveFromFavouriteMovies,
@@ -22,16 +20,12 @@ interface MovieCardProps {
   title: string;
   poster: string;
   Id: string;
-  width?: string;
-  height?: string;
 }
 
 const LetterboxdMovieCard: React.FC<MovieCardProps> = ({
   title,
   poster,
   Id,
-  width,
-  height,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const { data: session, status } = useSession();
@@ -87,64 +81,61 @@ const LetterboxdMovieCard: React.FC<MovieCardProps> = ({
     <Link
       href={`/film/${Id}`}
       className={cn(
-        "rounded-sm overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border hover:border-2 hover:border-amber-50 shrink-0",
-        width ?? "w-35",
-        height ?? "h-[220px]"
+        "relative block w-full aspect-2/3 rounded-sm overflow-hidden",
+        "border border-white/10 hover:border-amber-50",
+        "shadow-md hover:shadow-lg transition"
       )}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="relative w-full h-full">
-        <Image src={poster} alt={title} fill className="object-cover" />
-        <div
-          className={`absolute inset-0 bg-black/70 opacity-0 ${
-            isHovered ? "opacity-100" : ""
-          } transition-opacity duration-200 flex items-end p-2`}
-        >
-          {status === "authenticated" && (
-            <div
-              className={`absolute bottom-0 left-0 right-0 px-2 py-1 
+      <Image src={poster} alt={title} fill className="object-cover" />
+
+      <div
+        className={`absolute inset-0 bg-black/70 opacity-0 ${
+          isHovered ? "opacity-100" : ""
+        } transition-opacity duration-200 flex items-end p-2`}
+      >
+        {status === "authenticated" && (
+          <div
+            className={`absolute bottom-0 left-0 right-0 px-2 py-1 
           bg-black/75 backdrop-blur-sm 
           flex items-center justify-around 
           opacity-0 ${isHovered ? "opacity-100 translate-y-0" : "translate-y-3"}
           transition-all duration-200`}
-            >
-              <EyeIcon
-                className={`text-white w-5 h-5 hover:scale-110 transition-transform ${
-                  watched ? "fill-green-600" : ""
-                }`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleWatchClick();
-                }}
-              />
+          >
+            <EyeIcon
+              className={`text-white w-5 h-5 hover:scale-110 transition-transform ${
+                watched ? "fill-green-600" : ""
+              }`}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleWatchClick();
+              }}
+            />
 
-              <HeartIcon
-                className={`w-5 h-5 hover:scale-110 transition-transform ${
-                  liked ? "fill-red-500" : ""
-                }`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleLike();
-                }}
-              />
+            <HeartIcon
+              className={`w-5 h-5 hover:scale-110 transition-transform ${
+                liked ? "fill-red-500" : ""
+              }`}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleLike();
+              }}
+            />
 
-              <Dropdown
-                movieId={Id}
-                userId={session.user.id}
-                poster={poster}
-                title={title}
-              />
-            </div>
-          )}
-        </div>
+            <Dropdown
+              movieId={Id}
+              userId={session.user.id}
+              poster={poster}
+              title={title}
+            />
+          </div>
+        )}
       </div>
     </Link>
   );
 };
 
 export default LetterboxdMovieCard;
-
-

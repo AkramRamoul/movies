@@ -1,9 +1,11 @@
 import { getUserFilmStats } from "@/actions/movies";
 import { getCurrentUser } from "@/actions/user";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
 import { db } from "@/db/drizzle";
 import { users } from "@/db/schema";
 import ProfileTabs from "@/modules/film/ui/Tabs";
+import FavMovies from "@/modules/profile/ui/FavMovies";
 import { eq } from "drizzle-orm";
 
 const Home = async ({ params }: { params: Promise<{ username: string }> }) => {
@@ -27,7 +29,7 @@ const Home = async ({ params }: { params: Promise<{ username: string }> }) => {
   return (
     <div className="max-w-7xl h-screen mx-auto px-auto px-6 md:px-30 bg-noise">
       <div className="relative">
-        <div className="relative max-w-7xl mx-auto px-6 py-8 flex items-center justify-between">
+        <div className="relative max-w-7xl flex-1 mx-auto px-6 py-8 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <Avatar className="h-24 w-24 border border-white/20">
               <AvatarImage src={profileUser.image || "/Avatar.png"} />
@@ -55,6 +57,7 @@ const Home = async ({ params }: { params: Promise<{ username: string }> }) => {
 
           <div className="flex gap-1 text-center">
             <Stat label="FILMS" value={stats.totalFilms} />
+            <Separator orientation="vertical" />
             <Stat label="THIS YEAR" value={stats.filmsThisYear} />
             <Stat label="LISTS" value={stats.watchedCount} />
             <Stat label="FOLLOWING" value={2} />
@@ -62,7 +65,16 @@ const Home = async ({ params }: { params: Promise<{ username: string }> }) => {
           </div>
         </div>
       </div>
-      <ProfileTabs username={username} />
+      <div className="flex gap-6">
+        {/* Main content */}
+        <div className="flex-1">
+          <ProfileTabs username={username} />
+          <FavMovies />
+        </div>
+
+        {/* Sidebar */}
+        <div className="w-72 shrink-0 bg-[#2e3840] p-4 rounded-lg">kdkdd</div>
+      </div>
     </div>
   );
 };

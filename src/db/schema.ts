@@ -143,3 +143,15 @@ export const diaryEntries = pgTable("diaryEntries", {
   date: timestamp("date").notNull(),
   rewatch: boolean("rewatch").default(false),
 });
+
+export const ActivityLog = pgTable("activity_log", {
+  id: serial("id").primaryKey(),
+
+  userId: text("user_id").notNull(),
+
+  activityType: text("activity_type").notNull(),
+  movieId: text("movie_id"), // nullable
+  listId: integer("list_id"), // future-proofing
+
+  createdAt: timestamp("created_at").defaultNow(),
+});
