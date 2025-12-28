@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
   boolean,
   integer,
+  pgEnum,
   pgTable,
   primaryKey,
   serial,
@@ -12,8 +13,8 @@ import type { AdapterAccountType } from "@auth/core/adapters";
 
 export const ReviewsTable = pgTable("reviews", {
   id: serial("id").primaryKey(),
-  movieId: text("movie_id").notNull(), // IMDb ID (tt123...)
-  userId: text("user_id").notNull(), // Clerk user ID (string)
+  movieId: text("movie_id").notNull(),
+  userId: text("user_id").notNull(),
   rating: integer("rating"),
   reviewText: text("review_text"),
   isSeeded: boolean("is_seeded").default(false),
@@ -143,15 +144,20 @@ export const diaryEntries = pgTable("diaryEntries", {
   date: timestamp("date").notNull(),
   rewatch: boolean("rewatch").default(false),
 });
+export const activityTypeEnum = pgEnum("activity_type", [
+  "reviewed",
+  "watched",
+  "liked",
+  "rewatched",
+]);
 
 export const ActivityLog = pgTable("activity_log", {
   id: serial("id").primaryKey(),
-
   userId: text("user_id").notNull(),
-
-  activityType: text("activity_type").notNull(),
-  movieId: text("movie_id"), // nullable
-  listId: integer("list_id"), // future-proofing
-
+  activityType: activityTypeEnum("activity_type").notNull(),
+  movieId: text("movie_id"),
+  listId: integer("list_id"),
+  reviewId: integer("review_id"),
+  rewatch: boolean("rewatch").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });

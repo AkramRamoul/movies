@@ -99,6 +99,69 @@
       "when": 1766245644647,
       "tag": "0013_military_wilson_fisk",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1766911556465,
+      "tag": "0014_broken_dorian_gray",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1766916329308,
+      "tag": "0015_acoustic_whistler",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1766917138641,
+      "tag": "0016_shocking_vanisher",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1766917383516,
+      "tag": "0017_tricky_senator_kelly",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1766917551482,
+      "tag": "0018_stormy_professor_monster",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1766917598297,
+      "tag": "0019_strong_molecule_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1766917672849,
+      "tag": "0020_tidy_polaris",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1766917775550,
+      "tag": "0021_wild_black_knight",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1766922493268,
+      "tag": "0022_curly_talisman",
+      "breakpoints": true
     }
   ]
 }

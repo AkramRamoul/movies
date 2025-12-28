@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import {
   AddDiaryEntry,
   createMovieReview,
+  hasUserReviewedMovie,
   updateMovieReview,
 } from "@/actions/movies";
 import { toast } from "sonner";
@@ -63,7 +64,7 @@ const LogMovie = ({
     defaultValues: {
       watched: initialData?.watched ?? true,
       review: initialData?.review ?? "",
-      rating: initialData?.rating ?? 0,
+      rating: initialData?.rating,
     },
   });
 
@@ -73,15 +74,29 @@ const LogMovie = ({
   const [watchedDate, setWatchedDate] = useState<Date | undefined>(
     initialData?.watchedDate ?? new Date()
   );
+  const [ratingTouched, setRatingTouched] = useState(
+    initialData?.rating !== undefined
+  );
 
   const [reWatched, setReWatched] = useState(initialData?.reWatched ?? false);
 
+  useEffect(() => {
+    const checkReviewed = async () => {
+      const reviewed = await hasUserReviewedMovie(movieId, userId);
+      setReWatched(reviewed);
+    };
+
+    checkReviewed();
+  }, [movieId, userId]);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const ratingToSend = ratingTouched ? values.rating : undefined;
+
     if (isEditMode) {
       await updateMovieReview(
         movieId,
         userId,
-        values.rating ?? 0,
+        ratingToSend!,
         values.review ?? ""
       );
 
@@ -94,15 +109,16 @@ const LogMovie = ({
       await createMovieReview(
         movieId,
         userId,
-        values.rating ?? 0,
-        values.review ?? ""
+        ratingToSend,
+        values.review ?? "",
+        reWatched
       );
 
       if (values.watched && addToDiary) {
         await AddDiaryEntry(movieId, userId, watchedDate, reWatched);
       }
 
-      toast.success("Movie added to your films");
+      toast.success(`${title} was added to you films`);
     }
 
     onSave();
@@ -220,7 +236,10 @@ const LogMovie = ({
                   <FormControl>
                     <StarPicker
                       value={field.value}
-                      onChange={(val: number) => field.onChange(val)}
+                      onChange={(val: number) => {
+                        setRatingTouched(true);
+                        field.onChange(val);
+                      }}
                     />
                   </FormControl>
                 </FormItem>

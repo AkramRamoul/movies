@@ -6,6 +6,7 @@ import { db } from "@/db/drizzle";
 import { users } from "@/db/schema";
 import ProfileTabs from "@/modules/film/ui/Tabs";
 import FavMovies from "@/modules/profile/ui/FavMovies";
+import RecentActivity from "@/modules/profile/ui/RecentActivity";
 import { eq } from "drizzle-orm";
 
 const Home = async ({ params }: { params: Promise<{ username: string }> }) => {
@@ -27,7 +28,7 @@ const Home = async ({ params }: { params: Promise<{ username: string }> }) => {
   const stats = await getUserFilmStats(profileUser.id);
 
   return (
-    <div className="max-w-7xl h-screen mx-auto px-auto px-6 md:px-30 bg-noise">
+    <div className="max-w-7xl pb-12 min-h-screen mx-auto px-auto px-6 md:px-30 bg-noise">
       <div className="relative">
         <div className="relative max-w-7xl flex-1 mx-auto px-6 py-8 flex items-center justify-between">
           <div className="flex items-center gap-6">
@@ -70,6 +71,7 @@ const Home = async ({ params }: { params: Promise<{ username: string }> }) => {
         <div className="flex-1">
           <ProfileTabs username={username} />
           <FavMovies />
+          <RecentActivity />
         </div>
 
         {/* Sidebar */}

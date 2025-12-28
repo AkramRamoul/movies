@@ -1,0 +1,1 @@
+ALTER TABLE "activity_log" ALTER COLUMN "review_id" SET DATA TYPE integer;

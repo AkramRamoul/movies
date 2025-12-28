@@ -113,7 +113,6 @@ export function CreateAccountButton() {
             />
           </FieldGroup>
           <DialogFooter className="sm:justify-start">
-            <div id="clerk-captcha" />
             <Button
               className="bg-[#00b020] hover:bg-[#00a01c] mt-3 text-white 
       h-8

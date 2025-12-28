@@ -8,8 +8,10 @@ import {
   WatchedMovies,
   diaryEntries,
 } from "@/db/schema";
-import { UserFilmStats } from "@/types/types";
-import { and, count, desc, eq, gte } from "drizzle-orm";
+import { ActivityType, UserFilmStats } from "@/types/types";
+import { and, count, desc, eq, gte, aliasedTable } from "drizzle-orm";
+
+import { ActivityLog } from "@/db/schema";
 
 export const getPopularMovies = async () => {
   const result = await db
@@ -88,25 +90,52 @@ export const RemoveFromWatchList = async (movieId: string, userId: string) => {
 export const createMovieReview = async (
   movieId: string,
   userId: string,
-  rating: number,
-  reviewText: string,
+  rating?: number,
+  reviewText?: string,
   rewatch?: boolean
 ) => {
   try {
-    await db.insert(ReviewsTable).values({
-      movieId,
-      rating,
-      userId,
-      reviewText,
-    });
+    const isReview = typeof rating === "number" || Boolean(reviewText?.trim());
 
-    await logActivity({
-      userId,
-      movieId,
-      activityType: rewatch ? "rewatched" : "reviewed",
-    });
+    // ✅ CASE 1: Rewatch ONLY (no review)
+    if (!isReview) {
+      await logActivity({
+        userId,
+        movieId,
+        activityType: "rewatched",
+        rewatch: true,
+      });
 
-    return true;
+      return true;
+    }
+
+    // ✅ CASE 2: Review exists → create review
+    let reviewId: number | undefined;
+
+    if (isReview) {
+      const [review] = await db
+        .insert(ReviewsTable)
+        .values({
+          movieId,
+          userId,
+          rating,
+          reviewText,
+        })
+        .returning({ id: ReviewsTable.id });
+
+      reviewId = review.id;
+
+      await logActivity({
+        userId,
+        movieId,
+        activityType: "reviewed",
+        reviewId,
+        rewatch: Boolean(rewatch),
+      });
+
+      return true;
+    }
+    return false;
   } catch (error) {
     console.error(error);
     return false;
@@ -423,20 +452,62 @@ export async function getAllFavMoviesByUser(userId: string) {
   return result;
 }
 
-import { ActivityLog } from "@/db/schema";
-
-async function logActivity({
+export async function logActivity({
   userId,
   activityType,
   movieId,
+  reviewId,
+  rewatch,
 }: {
   userId: string;
   activityType: string;
   movieId?: string;
+  reviewId?: number;
+  rewatch?: boolean;
 }) {
   await db.insert(ActivityLog).values({
     userId,
-    activityType,
+    activityType: activityType as ActivityType,
     movieId,
+    reviewId: reviewId,
+    rewatch: rewatch,
   });
 }
+
+const userFavourites = aliasedTable(FavouriteMovies, "userFavourites");
+
+export const getRecentActivityShort = async (userId: string) => {
+  return await db
+    .select({
+      movieId: ActivityLog.movieId,
+      activityType: ActivityLog.activityType,
+      rating: ReviewsTable.rating,
+      createdAt: ActivityLog.createdAt,
+      rewatch: ActivityLog.rewatch,
+      isLiked: eq(userFavourites.movieId, ActivityLog.movieId), // boolean if joined
+    })
+    .from(ActivityLog)
+    .leftJoin(ReviewsTable, eq(ActivityLog.reviewId, ReviewsTable.id))
+    .leftJoin(
+      userFavourites,
+      and(
+        eq(userFavourites.movieId, ActivityLog.movieId),
+        eq(userFavourites.userId, userId)
+      )
+    )
+    .where(eq(ActivityLog.userId, userId))
+    .orderBy(desc(ActivityLog.createdAt))
+    .limit(8);
+};
+
+export const hasUserReviewedMovie = async (movieId: string, userId: string) => {
+  const review = await db
+    .select()
+    .from(ReviewsTable)
+    .where(
+      and(eq(ReviewsTable.movieId, movieId), eq(ReviewsTable.userId, userId))
+    )
+    .limit(1);
+
+  return !!review;
+};

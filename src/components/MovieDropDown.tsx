@@ -182,7 +182,7 @@ export const Dropdown = ({
                           rating: review.rating ?? 0,
                           watched: true,
                           watchedDate: new Date(),
-                          reWatched: true,
+                          reWatched: false,
                         };
                         if (review) {
                           setInitialReviewData(initialReview);
