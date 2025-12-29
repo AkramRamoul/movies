@@ -146,7 +146,6 @@ export const diaryEntries = pgTable("diaryEntries", {
 });
 export const activityTypeEnum = pgEnum("activity_type", [
   "reviewed",
-  "rated",
   "watched",
   "liked",
   "rewatched",

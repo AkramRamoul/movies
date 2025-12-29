@@ -22,7 +22,7 @@ const page = async ({ params }: { params: Promise<{ username: string }> }) => {
   const activities = await getRecentActivity(user!.id);
   console.log(activities);
   return (
-    <div className="max-w-7xl h-screen mx-auto px-auto px-6 md:px-50 bg-noise">
+    <div className="max-w-7xl min-h-screen mx-auto px-auto px-6 md:px-50 bg-noise">
       <nav className="flex justify-between items-center mt-8 bg-[#2c3440] py-3 pl-2 pr-6 rounded-sm ">
         <div className="flex gap-2">
           <Avatar className="h-6 w-6 border border-white/20">

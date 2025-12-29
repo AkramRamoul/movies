@@ -9,15 +9,18 @@ const WatchListedActivity = async ({ activity }: { activity: Activity }) => {
   }
 
   return (
-    <div className="text-sm text-[#657687] py-2 bg-[#1b2229] border-y-2 px-2">
-      You added{" "}
-      <Link
-        className="text-sm text-white hover:text-[#b3b5b7]"
-        href={`/film/${movie.imdbID}`}
-      >
-        {movie.Title}
-      </Link>{" "}
-      to your watchlist
+    <div className="py-2 bg-[#1b2229] border-y-2 px-2 flex justify-between">
+      <div className="text-sm text-[#657687]">
+        You added{" "}
+        <Link
+          className="text-sm text-white hover:text-[#b3b5b7]"
+          href={`/film/${movie.imdbID}`}
+        >
+          {movie.Title}
+        </Link>{" "}
+        to your watchlist
+      </div>
+      <div className="text-xs text-[#8fa2b7]">9d</div>
     </div>
   );
 };

@@ -111,7 +111,8 @@ const LogMovie = ({
         userId,
         ratingToSend,
         values.review ?? "",
-        reWatched
+        reWatched,
+        watchedDate
       );
 
       if (values.watched && addToDiary) {

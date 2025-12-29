@@ -92,7 +92,8 @@ export const createMovieReview = async (
   userId: string,
   rating?: number,
   reviewText?: string,
-  rewatch?: boolean
+  rewatch?: boolean,
+  createdAt?: Date
 ) => {
   try {
     const isReview = typeof rating === "number" || Boolean(reviewText?.trim());
@@ -120,6 +121,7 @@ export const createMovieReview = async (
           userId,
           rating,
           reviewText,
+          createdAt,
         })
         .returning({ id: ReviewsTable.id });
 
