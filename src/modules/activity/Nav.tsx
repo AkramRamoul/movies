@@ -1,18 +1,9 @@
 "use client";
-
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export default function ProfileTabs({ username }: { username: string }) {
-  const pathname = usePathname();
-
-  const isActive = (slug: string) => {
-    if (slug === "") return pathname === `/${username}`;
-    return pathname === `/${username}/${slug}`;
-  };
-
+const Links = ({ username }: { username: string }) => {
   const profileTabs = [
-    { label: "Profile", slug: "" },
     { label: "Activity", slug: "activity" },
     { label: "Films", slug: "films" },
     { label: "Diary", slug: "diary" },
@@ -21,11 +12,17 @@ export default function ProfileTabs({ username }: { username: string }) {
     { label: "Lists", slug: "lists" },
     { label: "Likes", slug: "likes" },
     { label: "Tags", slug: "tags" },
-    { label: "Network", slug: "network" },
   ];
 
+  const pathname = usePathname();
+
+  const isActive = (slug: string) => {
+    if (slug === "") return pathname === `/${username}`;
+    return pathname === `/${username}/${slug}`;
+  };
+
   return (
-    <nav className="flex items-center gap-4 justify-center py-2 border border-white/10">
+    <div className="flex items-center gap-4 justify-center">
       {profileTabs.map((tab) => {
         const href = `/${username}/${tab.slug}`;
 
@@ -39,18 +36,20 @@ export default function ProfileTabs({ username }: { username: string }) {
               className={`px-1 transition-colors ${
                 isActive(tab.slug)
                   ? "text-white"
-                  : "text-[#9ab] hover:text-white"
+                  : "text-[#9ab] hover:text-[#40bbf5]"
               }`}
             >
               {tab.label}
             </span>
 
             {isActive(tab.slug) && (
-              <span className="absolute left-0 right-0 -bottom-1 h-0.5 bg-[#00e054]" />
+              <span className="absolute left-0 right-0 -bottom-3 h-px bg-[#00e054]" />
             )}
           </Link>
         );
       })}
-    </nav>
+    </div>
   );
-}
+};
+
+export default Links;

@@ -4,8 +4,9 @@ import LetterboxdMovieCard from "@/modules/home/ui/Movies/MovieCard";
 import { fetchMovie } from "../lib/fetch";
 import { getCurrentUser } from "@/actions/user";
 import { HeartIcon, RefreshCcw, TextAlignStart } from "lucide-react";
+import Link from "next/link";
 
-const RecentActivity = async () => {
+const RecentActivity = async ({ username }: { username: string }) => {
   const currentUser = await getCurrentUser();
   const userId = currentUser?.id;
 
@@ -14,16 +15,23 @@ const RecentActivity = async () => {
   if (!data || data.length === 0) {
     return null;
   }
-  console.log(data);
 
   const movies = (
     await Promise.all(data.map((p) => fetchMovie(p.movieId!)))
   ).filter(Boolean);
   return (
     <div>
-      <h1 className="text-base mt-6 text-[#99a9ba] uppercase tracking-widest">
-        Recent Activity
-      </h1>
+      <div className="flex justify-between">
+        <h1 className="text-base mt-6 text-[#99a9ba] uppercase tracking-widest">
+          Recent Activity
+        </h1>
+        <Link
+          href={`/${username}/activity`}
+          className="text-base hover:text-amber-50 hover:underline mt-6 text-[#99a9ba] uppercase tracking-widest"
+        >
+          All
+        </Link>
+      </div>
       <Separator />
 
       <div className="grid grid-cols-2 md:grid-cols-4 mt-2 gap-x-1.5">
@@ -48,7 +56,7 @@ const RecentActivity = async () => {
                   </div>
                 )}
                 {Boolean(activity.isLiked) && (
-                  <HeartIcon className="w-4 h-4 fill-[#677787]" />
+                  <HeartIcon className="w-4 h-4 fill-[#677787] text-[#677787]" />
                 )}
 
                 {activity?.activityType === "reviewed" && (

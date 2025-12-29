@@ -1,27 +1,24 @@
-export async function fetchMovie(imdbId: string) {
+import { OmdbError, OmdbMovie } from "@/types/types";
+
+export async function fetchMovie(imdbId: string): Promise<OmdbMovie | null> {
   const res = await fetch(
     `https://www.omdbapi.com/?apikey=${process.env.MOVIE_API_KEY}&i=${imdbId}`,
-    { cache: "no-store" } // important for server components
+    { cache: "no-store" }
   );
 
-  if (!res.ok) {
-    console.error("OMDb HTTP error:", res.status);
-    return null;
-  }
+  if (!res.ok) return null;
 
   const text = await res.text();
 
   try {
-    const json = JSON.parse(text);
+    const json = JSON.parse(text) as OmdbMovie | OmdbError;
 
     if (json.Response === "False") {
-      console.error("OMDb error:", json.Error);
       return null;
     }
 
     return json;
   } catch {
-    console.error("OMDb returned non-JSON:", text.slice(0, 100));
     return null;
   }
 }

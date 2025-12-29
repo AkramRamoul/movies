@@ -38,7 +38,21 @@ export interface OmdbMovie {
   Error?: string; // Present if Response is "False"
 }
 
+export type OmdbError = {
+  Response: "False";
+  Error: string;
+};
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ACTIVITY_TYPES = ["reviewed", "watched", "liked", "rewatched"] as const;
 
 export type ActivityType = (typeof ACTIVITY_TYPES)[number];
+
+export type Activity = {
+  movieId: string | null;
+  activityType: "reviewed" | "watched" | "liked" | "rewatched" | "watchlisted";
+  rating: number | null;
+  createdAt: Date | null;
+  rewatch: boolean | null;
+  isLiked: unknown;
+};

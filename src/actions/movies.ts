@@ -50,7 +50,7 @@ export const addToWatchList = async (movieId: string, userId: string) => {
     await logActivity({
       userId,
       movieId,
-      activityType: "watchlist_add",
+      activityType: "watchlisted",
     });
 
     return true;
@@ -497,7 +497,7 @@ export const getRecentActivityShort = async (userId: string) => {
     )
     .where(eq(ActivityLog.userId, userId))
     .orderBy(desc(ActivityLog.createdAt))
-    .limit(8);
+    .limit(4);
 };
 
 export const hasUserReviewedMovie = async (movieId: string, userId: string) => {
@@ -509,5 +509,36 @@ export const hasUserReviewedMovie = async (movieId: string, userId: string) => {
     )
     .limit(1);
 
-  return !!review;
+  return review.length > 0;
+};
+
+export const getRecentActivity = async (userId: string) => {
+  const twentyOneDaysAgo = new Date();
+  twentyOneDaysAgo.setDate(twentyOneDaysAgo.getDate() - 21);
+
+  return await db
+    .select({
+      movieId: ActivityLog.movieId,
+      activityType: ActivityLog.activityType,
+      rating: ReviewsTable.rating,
+      createdAt: ActivityLog.createdAt,
+      rewatch: ActivityLog.rewatch,
+      isLiked: eq(userFavourites.movieId, ActivityLog.movieId),
+    })
+    .from(ActivityLog)
+    .leftJoin(ReviewsTable, eq(ActivityLog.reviewId, ReviewsTable.id))
+    .leftJoin(
+      userFavourites,
+      and(
+        eq(userFavourites.movieId, ActivityLog.movieId),
+        eq(userFavourites.userId, userId)
+      )
+    )
+    .where(
+      and(
+        eq(ActivityLog.userId, userId),
+        gte(ActivityLog.createdAt, twentyOneDaysAgo)
+      )
+    )
+    .orderBy(desc(ActivityLog.createdAt));
 };

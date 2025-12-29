@@ -71,7 +71,7 @@ const Home = async ({ params }: { params: Promise<{ username: string }> }) => {
         <div className="flex-1">
           <ProfileTabs username={username} />
           <FavMovies />
-          <RecentActivity />
+          <RecentActivity username={username} />
         </div>
 
         {/* Sidebar */}
