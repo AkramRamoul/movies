@@ -21,9 +21,6 @@ export function RatingsChart({ counts, total }: MovieReviewsResult) {
       (sum, [rating, count]) => sum + Number(rating) * count,
       0
     ) / Object.values(counts).reduce((a, b) => a + b, 0);
-  console.log(max);
-  console.log(average);
-  console.log(counts);
   return (
     <Card className="bg-transparent border-0 shadow-none">
       <CardContent className="flex items-end gap-3 py-3">

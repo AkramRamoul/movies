@@ -36,7 +36,7 @@ const RecentActivity = async ({ username }: { username: string }) => {
 
       <div className="grid grid-cols-2 md:grid-cols-4 mt-2 gap-x-1.5">
         {data.map((activity, i) => {
-          const movie = movies.find((m) => m.imdbID === activity.movieId);
+          const movie = movies.find((m) => m!.imdbID === activity.movieId);
 
           if (!movie) return null;
           return (

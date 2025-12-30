@@ -3,4 +3,3 @@
 - seen-on (journal)
 - search
 
-- make rating without review just a watch and rating not a full review

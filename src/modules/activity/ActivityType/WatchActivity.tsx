@@ -29,7 +29,9 @@ const WatchActivity = async ({ activity }: { activity: Activity }) => {
       <div className="text-sm text-[#657687]">
         {activity.rating ? (
           <div className="flex items-center">
-            <span className="text-[#657687] mr-1">You watched and rated</span>
+            <span className="text-[#657687] mr-1">
+              {activity.rewatch ? "You rewatched" : "You watched"} and rated
+            </span>
             <Link
               className="text-sm text-white hover:text-[#b3b5b7]"
               href={`/film/${movie.imdbID}`}
@@ -42,7 +44,7 @@ const WatchActivity = async ({ activity }: { activity: Activity }) => {
             </div>
             <span className="ml-1 text-[#657687]">
               On{" "}
-              {activity.createdAt?.toLocaleDateString("en-US", {
+              {activity.dateReviewed?.toLocaleDateString("en-US", {
                 day: "numeric",
                 weekday: "long",
                 month: "short",
@@ -52,7 +54,9 @@ const WatchActivity = async ({ activity }: { activity: Activity }) => {
           </div>
         ) : (
           <>
-            <span className="text-[#657687]">You watched </span>
+            <span className="text-[#657687]">
+              {activity.rewatch ? "You rewatched" : "You watched"}{" "}
+            </span>
             <Link
               className="text-sm text-white hover:text-[#b3b5b7]"
               href={`/film/${movie.imdbID}`}

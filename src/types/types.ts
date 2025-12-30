@@ -55,4 +55,6 @@ export type Activity = {
   createdAt: Date | null;
   rewatch: boolean | null;
   isLiked: unknown;
+  dateReviewed: Date | null;
+  reviewId: number | null;
 };

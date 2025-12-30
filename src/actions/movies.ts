@@ -104,7 +104,7 @@ export const createMovieReview = async (
       await logActivity({
         userId,
         movieId,
-        activityType: rewatch ? "rewatched" : "watched",
+        activityType: "watched",
         rewatch: Boolean(rewatch),
       });
 
@@ -121,7 +121,7 @@ export const createMovieReview = async (
         reviewText: hasReviewText ? reviewText : null,
         createdAt,
       })
-      .returning({ id: ReviewsTable.id, createdAt: ReviewsTable.createdAt });
+      .returning({ id: ReviewsTable.id });
 
     const reviewId = review.id;
 
@@ -129,14 +129,9 @@ export const createMovieReview = async (
     await logActivity({
       userId,
       movieId,
-      activityType: hasReviewText
-        ? "reviewed"
-        : rewatch
-        ? "rewatched"
-        : "watched",
+      activityType: hasReviewText ? "reviewed" : "watched",
       reviewId,
       rewatch: Boolean(rewatch),
-      createdAt: review?.createdAt ?? undefined,
     });
 
     return true;
@@ -462,14 +457,12 @@ export async function logActivity({
   movieId,
   reviewId,
   rewatch,
-  createdAt,
 }: {
   userId: string;
   activityType: string;
   movieId?: string;
   reviewId?: number;
   rewatch?: boolean;
-  createdAt?: Date;
 }) {
   await db.insert(ActivityLog).values({
     userId,
@@ -477,7 +470,6 @@ export async function logActivity({
     movieId,
     reviewId: reviewId,
     rewatch: rewatch,
-    createdAt: createdAt,
   });
 }
 
@@ -531,6 +523,8 @@ export const getRecentActivity = async (userId: string) => {
       createdAt: ActivityLog.createdAt,
       rewatch: ActivityLog.rewatch,
       isLiked: eq(userFavourites.movieId, ActivityLog.movieId),
+      dateReviewed: ReviewsTable.createdAt,
+      reviewId: ActivityLog.reviewId,
     })
     .from(ActivityLog)
     .leftJoin(ReviewsTable, eq(ActivityLog.reviewId, ReviewsTable.id))

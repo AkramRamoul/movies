@@ -1,5 +1,5 @@
 import { Activity } from "@/types/types";
-import LikeActivity from "./ActivityType/LikeActivity";
+// import LikeActivity from "./ActivityType/LikeActivity";
 import ReviewActivity from "./ActivityType/ReviewActivity";
 import RewatchActivity from "./ActivityType/RewatchActivity";
 import WatchActivity from "./ActivityType/WatchActivity";
@@ -29,7 +29,6 @@ export default function ActivityFeed({ activities }: ActivityFeedProps) {
 }
 
 const activityMap = {
-  liked: LikeActivity,
   reviewed: ReviewActivity,
   rewatched: RewatchActivity,
   watched: WatchActivity,

@@ -5,37 +5,40 @@ import Image from "next/image";
 const ReviewActivity = async ({ activity }: { activity: Activity }) => {
   const movie = await fetchMovie(activity.movieId!);
   if (!movie) {
-    return <div className="text-sm">Watchlisted movie</div>;
+    return <div className="text-sm">Movie not found</div>;
   }
 
   return (
     <div className="flex gap-4 py-4 border-b border-white/10 px-2">
       {/* Poster */}
-      <div className="w-[70px] shrink-0">
+      <div className="w-[90px] shrink-0">
         <Image
           src={movie.Poster}
           alt={movie.Title}
-          width={70}
-          height={105}
+          width={90}
+          height={120}
           className="rounded-xs object-cover"
         />
       </div>
 
       <div className="flex-1">
-        <p className="text-xs text-[#8fa2b7] mb-1">You watched</p>
-        <h3 className="text-xl font-bold">
+        <p className="text-sm text-[#657687] mb-1">
+          {activity.rewatch ? "You rewatched" : "You watched"}
+        </p>
+        <h3 className="text-3xl font-bold tracking-wide cursor-pointer hover:text-[#40BCF4]">
           {movie.Title}{" "}
-          <span className="font-normal text-base text-white/70">
+          <span className=" text-lg font-light text-white/70">
             {movie.Year}
           </span>
         </h3>
         {activity.rating && (
-          <div className="flex items-center gap-1 mt-1 text-green-400">
-            {activity.rating}
+          <div className="flex items-center gap-1 text-lg mt-1 text-green-400">
+            {"★".repeat(activity.rating!)}
+            {activity.rating! % 1 !== 0 && "½"}
           </div>
         )}
         {/* {movie.reviewText && ( */}
-        <p className="mt-2 text-sm text-[#c7d1db]">Good movie</p>
+        <p className="mt-2 text-[#99a9ba]">Good movie</p>
         {/* )} */}
       </div>
       <div className="text-xs text-[#8fa2b7]">9d</div>
