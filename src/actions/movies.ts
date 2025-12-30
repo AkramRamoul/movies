@@ -96,48 +96,50 @@ export const createMovieReview = async (
   createdAt?: Date
 ) => {
   try {
-    const isReview = typeof rating === "number" || Boolean(reviewText?.trim());
+    const hasRating = typeof rating === "number";
+    const hasReviewText = Boolean(reviewText?.trim());
 
-    // ✅ CASE 1: Rewatch ONLY (no review)
-    if (!isReview) {
+    // ✅ CASE 1: Watched / Rewatched ONLY (no rating, no review)
+    if (!hasRating && !hasReviewText) {
       await logActivity({
         userId,
         movieId,
-        activityType: "rewatched",
-        rewatch: true,
-      });
-
-      return true;
-    }
-
-    // ✅ CASE 2: Review exists → create review
-    let reviewId: number | undefined;
-
-    if (isReview) {
-      const [review] = await db
-        .insert(ReviewsTable)
-        .values({
-          movieId,
-          userId,
-          rating,
-          reviewText,
-          createdAt,
-        })
-        .returning({ id: ReviewsTable.id });
-
-      reviewId = review.id;
-
-      await logActivity({
-        userId,
-        movieId,
-        activityType: "reviewed",
-        reviewId,
+        activityType: rewatch ? "rewatched" : "watched",
         rewatch: Boolean(rewatch),
       });
 
       return true;
     }
-    return false;
+
+    // ✅ CASE 2 + 3: Rating OR Review → ALWAYS create review row
+    const [review] = await db
+      .insert(ReviewsTable)
+      .values({
+        movieId,
+        userId,
+        rating, // may exist
+        reviewText: hasReviewText ? reviewText : null,
+        createdAt,
+      })
+      .returning({ id: ReviewsTable.id, createdAt: ReviewsTable.createdAt });
+
+    const reviewId = review.id;
+
+    // ✅ Activity type depends ONLY on review text
+    await logActivity({
+      userId,
+      movieId,
+      activityType: hasReviewText
+        ? "reviewed"
+        : rewatch
+        ? "rewatched"
+        : "watched",
+      reviewId,
+      rewatch: Boolean(rewatch),
+      createdAt: review?.createdAt ?? undefined,
+    });
+
+    return true;
   } catch (error) {
     console.error(error);
     return false;
@@ -460,12 +462,14 @@ export async function logActivity({
   movieId,
   reviewId,
   rewatch,
+  createdAt,
 }: {
   userId: string;
   activityType: string;
   movieId?: string;
   reviewId?: number;
   rewatch?: boolean;
+  createdAt?: Date;
 }) {
   await db.insert(ActivityLog).values({
     userId,
@@ -473,6 +477,7 @@ export async function logActivity({
     movieId,
     reviewId: reviewId,
     rewatch: rewatch,
+    createdAt: createdAt,
   });
 }
 
