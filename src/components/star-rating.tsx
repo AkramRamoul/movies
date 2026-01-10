@@ -57,3 +57,33 @@ export const StarPicker = ({
     </div>
   );
 };
+
+export const StarRating = ({ rating }: { rating: number }) => {
+  return (
+    <div className="flex items-center gap-0.5">
+      {[1, 2, 3, 4, 5].map((star) => {
+        const isFull = rating >= star;
+        const isHalf = !isFull && rating > star - 1;
+
+        return (
+          <span key={star} className="relative">
+            {/* Background/Empty Star */}
+            <StarIcon className="size-4 text-[#2c3440] fill-[#2c3440]" />
+
+            {/* Foreground/Filled Star */}
+            <div className="absolute inset-0 overflow-hidden">
+              {isFull && (
+                <StarIcon className="size-4 text-[#00e054] fill-[#00e054]" />
+              )}
+              {isHalf && (
+                <div className="w-[50%] overflow-hidden">
+                  <StarIcon className="size-4 text-[#00e054] fill-[#00e054]" />
+                </div>
+              )}
+            </div>
+          </span>
+        );
+      })}
+    </div>
+  );
+};

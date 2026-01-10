@@ -543,3 +543,34 @@ export const getRecentActivity = async (userId: string) => {
     )
     .orderBy(desc(ActivityLog.createdAt));
 };
+
+export const getDiaryEntries = async (userId: string) => {
+  const diary = await db
+    .select({
+      id: diaryEntries.id,
+      movieId: diaryEntries.movieId,
+      watchedDate: diaryEntries.date,
+      rewatch: diaryEntries.rewatch,
+      rating: ReviewsTable.rating,
+      isLiked: FavouriteMovies.movieId,
+    })
+    .from(diaryEntries)
+    .leftJoin(
+      ReviewsTable,
+      and(
+        eq(ReviewsTable.movieId, diaryEntries.movieId),
+        eq(ReviewsTable.userId, userId)
+      )
+    )
+    .leftJoin(
+      FavouriteMovies,
+      and(
+        eq(FavouriteMovies.movieId, diaryEntries.movieId),
+        eq(FavouriteMovies.userId, userId)
+      )
+    )
+    .where(eq(diaryEntries.userId, userId))
+    .orderBy(desc(diaryEntries.date));
+
+  return diary;
+};

@@ -9,7 +9,7 @@ const ReviewActivity = async ({ activity }: { activity: Activity }) => {
   }
 
   return (
-    <div className="flex gap-4 py-4 border-b border-white/10 px-2">
+    <div className="flex gap-4 py-y border-b border-white/10 px-2">
       {/* Poster */}
       <div className="w-[90px] shrink-0">
         <Image
